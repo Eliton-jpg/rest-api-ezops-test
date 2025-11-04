@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:11
+    environment:
+      POSTGRES_USER: ezops
+      POSTGRES_PASSWORD: ezops
+      POSTGRES_DB: ezops
+    volumes:
+      - ./database/create.sql:/docker-entrypoint-initdb.d/create.sql
+    ports:
+      - "5432:5432"
+
+  api:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      DB_USER: ezops
+      DB_PASSWORD: ezops
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ezops
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+      - /app/node_modules
