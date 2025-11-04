@@ -6,24 +6,29 @@ on:
 
 env:
   AWS_REGION: us-east-1
-  ECR_REPOSITORY: 654654369899.dkr.ecr.us-east-1.amazonaws.com/teste-elitonlima
+  ECR_REPOSITORY: 654654369899.dkr.ecr.us-east-1.amazonaws.com/teste-elitonlima # ajuste conforme o nome real
   ECS_CLUSTER: test-elitonlima-ecs
   ECS_SERVICE: test-elitonlima-ecs-api
   TASK_FAMILY: test-elitonlima-ecs-api
+  CONTAINER_NAME: backend
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - uses: aws-actions/configure-aws-credentials@v4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - uses: aws-actions/amazon-ecr-login@v2
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build Docker image
         run: |
@@ -35,12 +40,17 @@ jobs:
           docker push $ECR_REPOSITORY:latest
           docker push $ECR_REPOSITORY:${{ github.sha }}
 
-      - name: Update ECS service to use new image
-        uses: aws-actions/amazon-ecs-update-task-definition@v1
+      - name: Render new ECS task definition
+        id: render-task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-family: ${{ env.TASK_FAMILY }}
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+
+      - name: Update ECS service
+        uses: aws-actions/amazon-ecs-update-service@v1
+        with:
           cluster: ${{ env.ECS_CLUSTER }}
           service: ${{ env.ECS_SERVICE }}
-          container-name: backend
-          image: ${{ env.ECR_REPOSITORY }}:${{ github.sha }}
-          force-new-deployment: true
+          task-definition: ${{ steps.render-task-def.outputs.task-definition }}
