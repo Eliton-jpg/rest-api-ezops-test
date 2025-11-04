@@ -1,26 +1,22 @@
 # rest-api-ezops-test
 
-## Requirements 
+## Requirements
+
 - Node 14
 - Postgres 11
+
 ## How to Start the API
 
 1. Clone repo: git clone https://github.com/ezops-br/rest-api-ezops-test.git
-
 2. Install Dependencies: npm install
-
 3. Setup the database postgres 11
-
 4. Run SQL file database/create.sql
-
 5. Setup Environment variables: DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME
-
-6. Run the server: node server/server.js
+6. Run the server: node server/server.js 
 
 ## How to Test the API
 
 1. Use Postman
-
 2. Follow the test
 
 ```
