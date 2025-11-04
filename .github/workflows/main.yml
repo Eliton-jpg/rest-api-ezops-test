@@ -44,7 +44,7 @@ jobs:
         id: render-task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-family: ${{ env.TASK_FAMILY }}
+          task-definition-arn: arn:aws:ecs:us-east-1:654654369899:task-definition/test-elitonlima-ecs-api:7
           container-name: ${{ env.CONTAINER_NAME }}
           image: ${{ env.ECR_REPOSITORY }}:${{ github.sha }}
 
@@ -55,3 +55,4 @@ jobs:
           service: ${{ env.ECS_SERVICE }}
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
+
